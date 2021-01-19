@@ -1,1 +1,0 @@
-<?xml version="1.0"?><methodCall><methodName>update_vm_memory_target</methodName><params><param><value><struct><member><name>domid</name><value>1</value></member><member><name>target</name><value>1</value></member></struct></value></param></params></methodCall>

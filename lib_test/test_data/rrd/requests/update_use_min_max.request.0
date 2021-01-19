@@ -1,1 +1,0 @@
-<?xml version="1.0"?><methodCall><methodName>update_use_min_max</methodName><params><param><value><struct><member><name>value</name><value><boolean>1</boolean></value></member></struct></value></param></params></methodCall>

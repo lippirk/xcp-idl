@@ -1,1 +1,0 @@
-<?xml version="1.0"?><methodCall><methodName>set_cache_sr</methodName><params><param><value><struct><member><name>sr_uuid</name><value>abcde</value></member></struct></value></param></params></methodCall>
