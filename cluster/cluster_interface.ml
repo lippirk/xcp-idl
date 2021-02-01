@@ -14,12 +14,29 @@ type debug_info = string [@@deriving rpcty]
 (** Name of the cluster *)
 type cluster_name = string [@@deriving rpcty]
 
-(** An IPv4 address (a.b.c.d) *)
+(** An IPv4 address (a.b.c.d).
+  * Describes how to contact a node on the clustering network *)
 type address = IPv4 of string [@@deriving rpcty]
+
+(** An FQDN
+  * Describes how to contact a node on the management network *)
+type mgmt_address = FQDN of string [@@deriving rpcty]
+
+type address_map_elt = {
+    mgmt_addr : mgmt_address
+  ; cluster_addr : address
+} [@@deriving rpcty]
+
+(** One-to-one association of addresses *)
+type address_map = address_map_elt list [@@deriving rpcty]
 
 let printaddr () = function IPv4 s -> Printf.sprintf "IPv4(%s)" s
 
+let print_mgmt_addr () = function FQDN s -> Printf.sprintf "FQDN(%s)" s
+
 let str_of_address address = match address with IPv4 a -> a
+
+let str_of_mgmt_address address = match address with FQDN a -> a
 
 type addresslist = address list [@@deriving rpcty]
 
@@ -119,6 +136,11 @@ let debug_info_p =
     ~description:["An uninterpreted string to associate with the operation."]
     debug_info
 
+let address_map_p =
+  Param.mk ~name:"address_map"
+  ~description:["Mapping of addresses for multiple nodes"]
+  address_map
+
 type remove = bool [@@deriving rpcty]
 
 module LocalAPI (R : RPC) = struct
@@ -148,7 +170,7 @@ module LocalAPI (R : RPC) = struct
       ; "the initial host to add to the cluster. This will be the"
       ; "address on which the rings will be created."
       ]
-      (debug_info_p @-> init_config_p @-> returning token_p err)
+      (debug_info_p @-> init_config_p @-> address_map_p @-> returning token_p err)
 
   let destroy =
     declare "destroy"
@@ -183,7 +205,7 @@ module LocalAPI (R : RPC) = struct
       ; "unless updated) in case it changed while the host was disabled."
       ; "(Note that changing optional fields isn't yet supported, TODO)"
       ]
-      (debug_info_p @-> init_config_p @-> returning unit_p err)
+      (debug_info_p @-> init_config_p @-> address_map_p @-> returning unit_p err)
 
   let join =
     let new_p = Param.mk ~name:"new_member" address in
@@ -198,6 +220,7 @@ module LocalAPI (R : RPC) = struct
       @-> token_p
       @-> new_p
       @-> existing_p
+      @-> address_map_p
       @-> returning unit_p err
       )
 
@@ -207,13 +230,13 @@ module LocalAPI (R : RPC) = struct
       [
         "Declare that one or more hosts in the cluster have changed address."
       ; "Only use this command if unable to rejoin the cluster using `enable`"
-      ; "because the IPv4 addresses of all nodes this node previously saw are \
+      ; "because the addresses of all nodes this node previously saw are \
          now"
       ; "invalid. If any one of these addresses remains valid on an enabled \
          node"
       ; "then this action is unnecessary."
       ]
-      (debug_info_p @-> changed_members_p @-> returning unit_p err)
+      (debug_info_p @-> changed_members_p @-> address_map_p @-> returning unit_p err)
 
   let declare_dead =
     let dead_members_p = Param.mk ~name:"dead_members" addresslist in
@@ -224,7 +247,7 @@ module LocalAPI (R : RPC) = struct
       ; "cluster in future, this may lead to fencing of other hosts and/or"
       ; "data loss or data corruption."
       ]
-      (debug_info_p @-> dead_members_p @-> returning unit_p err)
+      (debug_info_p @-> dead_members_p @-> address_map_p @-> returning unit_p err)
 
   let diagnostics =
     let diagnostics_p = Param.mk ~name:"diagnostics" diagnostics in
