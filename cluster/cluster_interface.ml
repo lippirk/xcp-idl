@@ -247,7 +247,7 @@ module LocalAPI (R : RPC) = struct
       ; "cluster in future, this may lead to fencing of other hosts and/or"
       ; "data loss or data corruption."
       ]
-      (debug_info_p @-> dead_members_p @-> address_map_p @-> returning unit_p err)
+      (debug_info_p @-> dead_members_p @-> returning unit_p err)
 
   let diagnostics =
     let diagnostics_p = Param.mk ~name:"diagnostics" diagnostics in
