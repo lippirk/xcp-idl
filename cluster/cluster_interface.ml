@@ -17,7 +17,7 @@ type cluster_name = string [@@deriving rpcty]
 type ip_with_hostname = {ip: string; hostname: string} [@@deriving rpcty]
 
 (** An cluster member's address
-  * IPv4 should be avoided if possible *)
+  * IPv4 should be avoided if possible, but is kept for backwards compatibility *)
 type address = IPv4 of string | IP_with_hostname of ip_with_hostname
 [@@deriving rpcty]
 
@@ -133,6 +133,8 @@ let debug_info_p =
     ~description:["An uninterpreted string to associate with the operation."]
     debug_info
 
+let all_members_p = Param.mk ~name:"all_members" all_members
+
 type remove = bool [@@deriving rpcty]
 
 module LocalAPI (R : RPC) = struct
@@ -245,4 +247,12 @@ module LocalAPI (R : RPC) = struct
     declare "diagnostics"
       ["Returns diagnostic information about the cluster"]
       (debug_info_p @-> returning diagnostics_p err)
+
+  let enable_tls_verification =
+    declare "enable-tls-verification"
+      [
+        "Enables TLS verification on the cluster."
+      ; "Every member in all_members must have a hostname."
+      ]
+      (debug_info_p @-> all_members_p @-> returning unit_p err)
 end
