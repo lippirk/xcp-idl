@@ -133,8 +133,6 @@ let debug_info_p =
     ~description:["An uninterpreted string to associate with the operation."]
     debug_info
 
-let all_members_p = Param.mk ~name:"all_members" all_members
-
 type remove = bool [@@deriving rpcty]
 
 module LocalAPI (R : RPC) = struct
@@ -249,6 +247,7 @@ module LocalAPI (R : RPC) = struct
       (debug_info_p @-> returning diagnostics_p err)
 
   let enable_tls_verification =
+    let all_members_p = Param.mk ~name:"all_members" addresslist in
     declare "enable-tls-verification"
       [
         "Enables TLS verification on the cluster."
