@@ -246,12 +246,9 @@ module LocalAPI (R : RPC) = struct
       ["Returns diagnostic information about the cluster"]
       (debug_info_p @-> returning diagnostics_p err)
 
-  let enable_tls_verification =
+  let enable_tls_verification_prechecks =
     let all_members_p = Param.mk ~name:"all_members" addresslist in
-    declare "enable-tls-verification"
-      [
-        "Enables TLS verification on the cluster."
-      ; "Every member in all_members must have a hostname."
-      ]
+    declare "enable-tls-verification-prechecks"
+      ["Performs TLS verification prechecks"]
       (debug_info_p @-> all_members_p @-> returning unit_p err)
 end
