@@ -36,6 +36,8 @@ type node = {addr: address; id: nodeid} [@@deriving rpcty]
 
 type all_members = node list [@@deriving rpcty]
 
+type pem = {priv_key: string; cert: string; cn: string} [@@deriving rpcty]
+
 (** This type contains all of the information required to initialise the
     cluster. All optional params will have the recommended defaults if None. *)
 type init_config = {
@@ -43,6 +45,7 @@ type init_config = {
   ; token_timeout_ms: int64 option
   ; token_coefficient_ms: int64 option
   ; name: string option
+  ; pems: pem list option
 }
 [@@deriving rpcty]
 
@@ -57,6 +60,7 @@ type cluster_config = {
   ; config_version: int64
   ; cluster_token_timeout_ms: int64
   ; cluster_token_coefficient_ms: int64
+  ; pems : pem list option
 }
 [@@deriving rpcty]
 
