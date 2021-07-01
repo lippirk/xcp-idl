@@ -255,4 +255,10 @@ module LocalAPI (R : RPC) = struct
     declare "get-config"
       ["Returns local cluster config"]
       (debug_info_p @-> returning cluster_config_p err)
+
+  let write_pem =
+    let pems_p = Param.mk ~name:"pems" pems in
+    declare "write-pem"
+      ["Distribute pem to existing cluster"]
+      (debug_info_p @-> pems_p @-> returning unit_p err)
 end
